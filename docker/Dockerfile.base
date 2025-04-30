@@ -44,6 +44,10 @@ RUN --mount=type=cache,target=/var/cache/apt \
     git \
     libglib2.0-0 \
     ncurses-term && \
+    vim && \
+    libglfw3 && \
+    libglfw3-dev && \
+    freeglut3-dev && \
     apt -y autoremove && apt clean autoclean && \
     rm -rf /var/lib/apt/lists/*
 
@@ -81,6 +85,13 @@ RUN touch /bin/nvidia-smi && \
     touch /etc/localtime && \
     mkdir -p /var/run/nvidia-persistenced && \
     touch /var/run/nvidia-persistenced/socket
+ 
+#RUN --mount=type=cache,target=${DOCKER_USER_HOME}/.cache/pip \
+#    config set global.index-url https://mirrors.tuna.tsinghua.edu,.cn/pypi/web/simple
+
+#RUN --mount=type=cache,target=${DOCKER_USER_HOME}/.cache/pip \
+#    config set global.extra-index-url https://pypi.org/simple
+COPY ${ISAACLAB_PATH}/docker/pip.conf  ${DOCKER_USER_HOME}/.config/pip/pip.conf
 
 # installing Isaac Lab dependencies
 # use pip caching to avoid reinstalling large packages

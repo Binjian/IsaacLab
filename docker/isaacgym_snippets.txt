@@ -1,0 +1,46 @@
+# switch function for enable IsaacLab environment, or disable IsaacLab for IsaacGym
+lab() {
+        if [ "$1" = "enable" ]
+        then
+                export LD_LIBRARY_PATH="${LD_LIBRARY_PATH//\/root\/anaconda3\/envs\/isaacgym\/lib:/}"
+                for i in $(seq ${CONDA_SHLVL}); do
+                        conda deactivate
+                done
+                alias python=/workspace/isaaclab/_isaac_sim/python.sh
+                alias python3=/workspace/isaaclab/_isaac_sim/python.sh
+                alias pip='/workspace/isaaclab/_isaac_sim/python.sh -m pip'
+                alias pip3='/workspace/isaaclab/_isaac_sim/python.sh -m pip'
+                alias tensorboard='/workspace/isaaclab/_isaac_sim/python.sh /workspace/isaaclab/_isaac_sim/tensorboard'
+        else
+                if [[ $(type python 2>/dev/null) =~ "alias" ]]; then
+                        unalias python
+                fi
+                if [[ $(type python3 2>/dev/null) =~ "alias" ]]; then
+                        unalias python3
+                fi
+                if [[ $(type pip 2>/dev/null) =~ "alias" ]]; then
+                        unalias pip
+                fi
+                if [[ $(type pip3 2>/dev/null) =~ "alias" ]]; then
+                        unalias pip3
+                fi
+                if [[ $(type tensorboard 2>/dev/null) =~ "alias" ]]; then
+                        unalias tensorboard
+                fi
+                # >>> conda initialize >>>
+                # !! Contents within this block are managed by 'conda init' !!
+                __conda_setup="$('/root/anaconda3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
+                if [ $? -eq 0 ]; then
+                        eval "$__conda_setup"
+                else
+                        if [ -f "/root/anaconda3/etc/profile.d/conda.sh" ]; then
+                                . "/root/anaconda3/etc/profile.d/conda.sh"
+                        else
+                                export PATH="/root/anaconda3/bin:$PATH"
+                        fi
+                fi
+                unset __conda_setup
+                # <<< conda initialize <<<
+                export LD_LIBRARY_PATH="/root/anaconda3/envs/isaacgym/lib:$LD_LIBRARY_PATH"
+        fi
+}
