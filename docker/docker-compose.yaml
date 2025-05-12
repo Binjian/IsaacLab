@@ -64,6 +64,8 @@ x-default-isaac-lab-volumes: &default-isaac-lab-volumes
 x-default-isaac-lab-environment: &default-isaac-lab-environment
   - ISAACSIM_PATH=${DOCKER_ISAACLAB_PATH}/_isaac_sim
   - OMNI_KIT_ALLOW_ROOT=1
+  - HTTP_PROXY=http://127.0.0.1:20171
+  - HTTPS_PROXY=http://127.0.0.1:20171
 
 x-default-isaac-lab-deploy: &default-isaac-lab-deploy
   resources:
@@ -93,6 +95,8 @@ services:
     environment: *default-isaac-lab-environment
     volumes: *default-isaac-lab-volumes
     network_mode: host
+    ports:
+      - 20171:20171
     deploy: *default-isaac-lab-deploy
     # This is the entrypoint for the container
     entrypoint: bash
@@ -123,6 +127,8 @@ services:
     environment: *default-isaac-lab-environment
     volumes: *default-isaac-lab-volumes
     network_mode: host
+    ports:
+      - 20171:20171
     deploy: *default-isaac-lab-deploy
     # This is the entrypoint for the container
     entrypoint: bash
