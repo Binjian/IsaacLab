@@ -87,6 +87,10 @@ extract_python_exe() {
         echo -e "\t3. Python executable is not available at the default path: ${ISAACLAB_PATH}/_isaac_sim/python.sh" >&2
         exit 1
     fi
+
+    # set mirror for pip
+    python -m pip3 config set global global.index-url https://mirrors.aliyun.com/pypi/simple
+    python -m pip3 config set global index-url https://pypi.org/simple
     # return the result
     echo ${python_exe}
 }
