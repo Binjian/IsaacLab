@@ -106,6 +106,7 @@ RUN echo "export ISAACLAB_PATH=${ISAACLAB_PATH}" >> ${HOME}/.bashrc && \
         >> ${HOME}/.bashrc && \
     echo "export TZ=$(date +%Z)" >> ${HOME}/.bashrc
 
+# install external conda environment
 RUN mkdir -p ~/miniconda3 && \ 
     wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda3/miniconda.sh && \
     bash ~/miniconda3/miniconda.sh -b -u -p ~/miniconda3 && \
@@ -114,6 +115,32 @@ RUN mkdir -p ~/miniconda3 && \
     conda init --all && \
     conda config --set auto_update_conda False
 
+# Install Humanoid Gym
+RUN WORKSPACE_ROOT="$(dirname "${ISAACLAB_PATH}")" && \
+    echo "export HUMANOIDGYM_PATH=${WORKSPACE_ROOT}/humanoid-gym" >> "${HOME}/.bashrc" && \
+    echo "export ISAACGYM_PATH=${WORKSPACE_ROOT}/isaacgym"       >> "${HOME}/.bashrc"
+ENV HUMANOIDGYM_PATH="${WORKSPACE_ROOT}/humanoid-gym"
+ENV ISAACGYM_PATH="${WORKSPACE_ROOT}/isaacgym"
+
+# ENV HUMANOIDGYM_PATH="/workspace/humanoid-gym"
+# ENV ISAACGYM_PATH="/workspace/isaacgym"
+# RUN echo "export HUMANOIDGYM_PATH=${HUMANOIDGYM_PATH}" >> ${HOME}/.bashrc && \
+#     echo "export ISAACGYM_PATH=${ISAACGYM_PATH}" >> ${HOME}/.bashrc 
+
+RUN wget -P ${HUMANOIDGYM_PATH} https://developer.download.nvidia.com/isaac/secure/Isaac_Gym/Preview_4/IsaacGym_Preview_4_Package.tar.gz  && \
+    tar -xf ${HUMANOIDGYM_PATH}/IsaacGym_Preview_4_Package.tar.gz -C ${ISAACGYM_PATH} && \
+    rm ${HUMANOIDGYM_PATH}/IsaacGym_Preview_4.tar.gz && \
+    git clone https://github.com/roboterax/humanoid-gym.git ${HUMANOIDGYM_PATH} && \
+    cd ${HUMANOIDGYM_PATH} && \
+    git checkout v1.0.0 
+
+RUN conda create -n humanoidgym python=3.8 && \
+    conda install pytorch==1.13.1 torchvision==0.14.1 torchaudio==0.13.1 pytorch-cuda=11.7 -c pytorch -c nvidia -c conda-forge -y && \
+    conda install -c conda-forge -y \
+    numpy=1.23 && \
+    conda run -n humanoidgym pip install -e ${ISAACGYM_PATH}/python && \
+    conda run -n humanoidgym pip install -e ${HUMANOIDGYM_PATH} && \
+    conda clean --all -y
 # add lab/gym switch functions to bashrc
 RUN cat ${ISAACLAB_PATH}/docker/isaacgym_snippets.txt >> ${HOME}/.bashrc
 
