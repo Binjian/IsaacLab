@@ -144,6 +144,7 @@ COPY ./docker/.condarc ${HOME}/.condarc
 #     echo "export ISAACGYM_PATH=${ISAACGYM_PATH}" >> ${HOME}/.bashrc 
 
 ENV HUMANOIDGYM_PATH="/workspace/humanoid-gym"
+ENV HUMANOIDBENCH_PATH="/workspace/humanoid-bench"
 ENV ISAACGYM_PATH="/workspace/isaacgym"
 ENV WORKSPACE_PATH="/workspace"
 RUN echo ${HUMANOIDGYM_PATH} && \
@@ -153,9 +154,13 @@ RUN echo ${HUMANOIDGYM_PATH} && \
     tar -xf isaac-gym-preview-4 -C ${WORKSPACE_PATH} && \
     rm isaac-gym-preview-4 && \
     mkdir -p ${HUMANOIDGYM_PATH} && \
-    git clone https://github.com/roboterax/humanoid-gym.git ${HUMANOIDGYM_PATH} && \
+    git clone -b xs https://gitlab.com/Binjian/humanoid-gym.git ${HUMANOIDGYM_PATH} && \
     cd ${HUMANOIDGYM_PATH} && \
-    git checkout v1.0.0 
+    git checkout v0.0.1 && \
+    mkdir -p ${HUMANOIDBENCH_PATH} && \
+    git clone -b xs https://gitlab.com/Binjian/humanoid-bench.git ${HUMANOIDBENCH_PATH} && \
+    cd ${HUMANOIDBENCH_PATH} 
+
 
 RUN source ~/miniconda3/bin/activate && \
     conda create -n h-gym python=3.8 && \
@@ -165,6 +170,15 @@ RUN source ~/miniconda3/bin/activate && \
 RUN source ~/miniconda3/bin/activate && \
     conda run -n h-gym pip install -e ${ISAACGYM_PATH}/python && \
     conda run -n h-gym pip install -e ${HUMANOIDGYM_PATH} && \
+    conda clean --all -y
+
+# RUN apt-get install xvfb -y && \
+RUN source ~/miniconda3/bin/activate && \
+    conda create -n h-bench python=3.11 && \
+    conda run -n h-bench pip install -e ${HUMANOIDBENCH_PATH} && \
+    conda run -n h-bench pip install "jax[cuda12]==0.4.28" && \
+    conda run -n h-bench pip install "orbax-checkpoint==0.6.4" && \
+    conda run -n h-bench conda install -c conda-forge libstdcxx-ng && \ 
     conda clean --all -y
 # add lab/gym switch functions to bashrc
 RUN cat ${ISAACLAB_PATH}/docker/isaacgym_snippets.txt >> ${HOME}/.bashrc
